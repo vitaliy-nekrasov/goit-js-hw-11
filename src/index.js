@@ -1,79 +1,72 @@
-const axios = require('axios');
+import PixabayApiService from './js/pixabay-api';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '29456353-5465c64cf9d8797860ea8e981';
-let page = 1;
-const options = `image_type=photo&orientation=horizontal&safesearch=true`;
-let searchQuery = '';
-
-async function getPictures(value) {
-  const res = await axios.get(
-    `${BASE_URL}?key=${API_KEY}&q=${value}&${options}&page=${page}&per_page=40`
-  );
-  const increment = await incrementPage();
-  const data = await res.data.hits;
-  return data;
-}
-
+const pixabayApiService = new PixabayApiService();
 const { formEl, galleryEl, loadMoreBtnEl } = {
   formEl: document.querySelector('.search-form'),
   galleryEl: document.querySelector('.gallery'),
   loadMoreBtnEl: document.querySelector('.load-more'),
 };
+
 formEl.addEventListener('submit', onSubmitForm);
+loadMoreBtnEl.addEventListener('click', showMoreImg);
 
 async function onSubmitForm(evt) {
-  evt.preventDefault();
-  searchQuery = evt.currentTarget.elements.searchQuery.value;
-  const removeGalleryMarkup = await removeGallery();
-  const removeLoadBtn = await removeLoadMoreBtn();
-  const pictures = await getPictures(searchQuery);
-  if (pictures.length === 0) {
-    Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
+  try {
+    evt.preventDefault();
+    pixabayApiService.query = evt.currentTarget.elements.searchQuery.value;
+    const resetPage = await pixabayApiService.resetPage();
+    const removeLoadBtn = await removeLoadMoreBtn();
+    const removeGalleryMarkup = await removeGallery();
+    const pictures = await pixabayApiService.getPictures(
+      pixabayApiService.query
     );
+    if (pictures.length === 0) {
+      return Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    const totalPictures = await pixabayApiService.totalHits(
+      pixabayApiService.query
+    );
+    Notify.info(`Hooray! We found ${totalPictures} images.`);
+    const markup = await pixabayApiService.galleryMarkup(pictures);
+    const gallery = await createGallery(markup);
+    const scroll = await startSmoothScroll();
+    const showLoadMoreBtn = await addLoadMoreBtn();
+  } catch (error) {
+    console.log(error);
   }
-  const markup = await galleryMarkup(pictures);
-  const gallery = await createGallery(markup);
-  const showLoadMoreBtn = await addLoadMoreBtn();
 }
 
-async function galleryMarkup(pictures) {
-  const markup = await pictures.map(picture => {
-    const {
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads,
-    } = picture;
-    const markupString = `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-  <div class="info">
-    <p class="info-item">
-      <b>Likes<br><span>${likes}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Views<br><span>${views}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Comments<br><span>${comments}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Downloads<br><span>${downloads}</span></b>
-    </p>
-  </div>
-</div>`;
-    return markupString;
-  });
-  return markup.join(' ');
+async function showMoreImg() {
+  try {
+    const removeLoadBtn = await removeLoadMoreBtn();
+    const pictures = await pixabayApiService.getPictures(
+      pixabayApiService.query
+    );
+    const markup = await pixabayApiService.galleryMarkup(pictures);
+    const gallery = await createGallery(markup);
+    const scroll = await loadMoreSmoothScroll();
+    const showLoadMoreBtn = await addLoadMoreBtn();
+    if (pictures.length < 39) {
+      Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
+      const removeLoadBtn = await removeLoadMoreBtn();
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function createGallery(markup) {
-  return await galleryEl.insertAdjacentHTML('beforeend', markup);
+  const createMarkup = await galleryEl.insertAdjacentHTML('beforeend', markup);
+
+  let gallery = new SimpleLightbox('.gallery a');
+  gallery.on('show.simplelightbox');
 }
 
 async function removeGallery() {
@@ -91,18 +84,24 @@ async function removeLoadMoreBtn() {
   return removeBtn;
 }
 
-async function incrementPage() {
-  const increment = await (page += 1);
-  console.log(page);
-  return page;
+async function startSmoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('body')
+    .firstElementChild.getBoundingClientRect();
+
+  const scroll = await window.scrollBy({
+    top: cardHeight,
+    behavior: 'smooth',
+  });
 }
 
-loadMoreBtnEl.addEventListener('click', showMoreImg);
+async function loadMoreSmoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
 
-async function showMoreImg() {
-  //   const increment = await incrementPage();
-  const pictures = await getPictures(searchQuery);
-  const markup = await galleryMarkup(pictures);
-  const gallery = await createGallery(markup);
-  const showLoadMoreBtn = await addLoadMoreBtn();
+  const scroll = await window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }

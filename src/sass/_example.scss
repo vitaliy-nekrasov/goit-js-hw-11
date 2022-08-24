@@ -84,9 +84,9 @@ button {
 .photo-card {
   width: 340px;
   margin-bottom: 12px;
-  &:not(:nth-child(4n)) {
-    margin-right: 22px;
-  }
+  // &:not(:nth-child(4n)) {
+  //   margin-right: 17px;
+  // }
   border: 1px solid #cecece;
 }
 img {
@@ -116,8 +116,20 @@ span {
 }
 .load-more {
   margin: 0 auto;
+  margin-top: 8px;
+  margin-bottom: 20px;
   display: none;
 }
 .show {
+  visibility: visible;
   display: block;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+  margin: 0;
+  box-sizing: content-box;
+  &:not(:nth-child(4n)) {
+    margin-right: 22px;
+  }
 }
