@@ -28,6 +28,7 @@
 }
 
 .search-form {
+  position: relative;
   padding-top: 25px;
   padding-bottom: 25px;
   display: flex;
@@ -78,8 +79,9 @@ button {
 .gallery {
   display: flex;
   flex-wrap: wrap;
-  padding-left: 6px;
-  padding-right: 6px;
+  justify-content: space-around;
+  margin-left: 6px;
+  margin-right: 6px;
 }
 .photo-card {
   width: 340px;
@@ -129,7 +131,11 @@ a {
   color: inherit;
   margin: 0;
   box-sizing: content-box;
-  &:not(:nth-child(4n)) {
-    margin-right: 22px;
-  }
+  // &:not(:nth-child(4n)) {
+  //   margin-right: 13px;
+  // }
+}
+.choice-btn {
+  position: absolute;
+  right: 15px;
 }

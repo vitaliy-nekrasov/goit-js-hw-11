@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Page title</title>
     <link rel="stylesheet" href="./sass/index.scss" />
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./infinite-scroll-page.js"></script>
   </head>
   <body>
     <form class="search-form" id="search-form">
@@ -16,13 +16,12 @@
         placeholder="Search images..."
       />
       <button type="submit" class="sub-btn">Search</button>
-      <a href="./infinite-scroll-page.html" class="choice-btn"
-        ><button type="button">To infinite scroll page</button></a
+      <a href="./index.html" class="choice-btn"
+        ><button type="button">To load more page</button></a
       >
     </form>
-    <div class="gallery">
+    <div class="gallery container">
       <!-- Карточки изображений -->
     </div>
-    <button type="button" class="load-more">Load more</button>
   </body>
 </html>

@@ -37,8 +37,8 @@ export default class PixabayApiService {
         comments,
         downloads,
       } = picture;
-      const markupString = `<a href="${largeImageURL}">
-    <div class="photo-card">
+      const markupString = `<a class="img" href="${largeImageURL}">
+    <div class="photo-card post pagination__next">
       <img src="${webformatURL}" alt="${tags}" loading="lazy" />
         <div class="info">
     <p class="info-item">
