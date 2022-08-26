@@ -85,7 +85,7 @@ button {
 }
 .photo-card {
   width: 340px;
-  margin-bottom: 12px;
+
   // &:not(:nth-child(4n)) {
   //   margin-right: 17px;
   // }
@@ -131,9 +131,7 @@ a {
   color: inherit;
   margin: 0;
   box-sizing: content-box;
-  // &:not(:nth-child(4n)) {
-  //   margin-right: 13px;
-  // }
+  margin-bottom: 12px;
 }
 .choice-btn {
   position: absolute;

@@ -13,51 +13,8 @@ export default class PixabayApiService {
     const res = await axios.get(
       `${BASE_URL}?key=${API_KEY}&q=${value}&${options}&page=${this.page}&per_page=40`
     );
-    const data = await res.data.hits;
     const increment = await this.incrementPage();
-    return data;
-  }
-
-  async totalHits(value) {
-    const res = await axios.get(
-      `${BASE_URL}?key=${API_KEY}&q=${value}&${options}`
-    );
-    const totalPictures = await res.data.totalHits;
-    return totalPictures;
-  }
-
-  async galleryMarkup(pictures) {
-    const markup = await pictures.map(picture => {
-      const {
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      } = picture;
-      const markupString = `<a class="img" href="${largeImageURL}">
-    <div class="photo-card post pagination__next">
-      <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-        <div class="info">
-    <p class="info-item">
-      <b>Likes<br /><span>${likes}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Views<br /><span>${views}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Comments<br /><span>${comments}</span></b>
-    </p>
-    <p class="info-item">
-      <b>Downloads<br /><span>${downloads}</span></b>
-    </p>
-  </div>
-</div></a>`;
-      return markupString;
-    });
-    return markup.join(' ');
+    return res;
   }
 
   async incrementPage() {

@@ -1,10 +1,11 @@
 import PixabayApiService from './js/pixabay-api';
+import galleryMarkup from './js/gallery-markup';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const pixabayApiService = new PixabayApiService();
-const { formEl, galleryEl, containerEl } = {
+const { formEl, galleryEl } = {
   formEl: document.querySelector('.search-form'),
   galleryEl: document.querySelector('.gallery'),
 };
@@ -15,28 +16,35 @@ formEl.addEventListener('submit', onSubmitForm);
 async function onSubmitForm(evt) {
   try {
     evt.preventDefault();
-    pixabayApiService.query = evt.currentTarget.elements.searchQuery.value;
+    pixabayApiService.query =
+      evt.currentTarget.elements.searchQuery.value.trim();
+    if (pixabayApiService.query === '') {
+      return;
+    }
     const resetPage = await pixabayApiService.resetPage();
     const removeGalleryMarkup = await removeGallery();
-    const pictures = await pixabayApiService.getPictures(
+    const response = await pixabayApiService.getPictures(
       pixabayApiService.query
     );
+    const pictures = await response.data.hits;
+    const totalPictures = await response.data.totalHits;
+    Notify.info(`Hooray! We found ${totalPictures} images.`);
     if (pictures.length === 0) {
       return Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
-    const totalPictures = await pixabayApiService.totalHits(
-      pixabayApiService.query
-    );
-    Notify.info(`Hooray! We found ${totalPictures} images.`);
-    const markup = await pixabayApiService.galleryMarkup(pictures);
+
+    const markup = await galleryMarkup(pictures);
     const gallery = await createGallery(markup);
     const lastEl = await document.querySelector('.img:last-child');
     isPageLoad = true;
     if (isPageLoad) {
       const observe = await observeLastEl(lastEl);
       isPageLoad = false;
+    }
+    if (pictures.length < 39) {
+      infiniteScroll.unobserve(lastEl);
     }
     const scroll = await startSmoothScroll();
   } catch (error) {
@@ -69,10 +77,11 @@ async function startSmoothScroll() {
 
 async function showMoreImg() {
   try {
-    const pictures = await pixabayApiService.getPictures(
+    const response = await pixabayApiService.getPictures(
       pixabayApiService.query
     );
-    const markup = await pixabayApiService.galleryMarkup(pictures);
+    const pictures = await response.data.hits;
+    const markup = await galleryMarkup(pictures);
     const gallery = await createGallery(markup);
     const lastEl = await document.querySelector('.img:last-child');
     isPageLoad = true;
