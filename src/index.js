@@ -17,6 +17,7 @@ loadMoreBtnEl.addEventListener('click', showMoreImg);
 async function onSubmitForm(evt) {
   try {
     evt.preventDefault();
+    const showLoader = await loaderShow();
     pixabayApiService.query =
       evt.currentTarget.elements.searchQuery.value.trim();
     if (pixabayApiService.query === '') {
@@ -44,6 +45,7 @@ async function onSubmitForm(evt) {
     const markup = await galleryMarkup(pictures);
     const gallery = await createGallery(markup);
     const scroll = await startSmoothScroll();
+    const hideLoader = await loaderHide();
   } catch (error) {
     console.log(error);
   }
@@ -51,6 +53,7 @@ async function onSubmitForm(evt) {
 
 async function showMoreImg() {
   try {
+    const showLoader = await loaderShow();
     const removeLoadBtn = await removeLoadMoreBtn();
     const response = await pixabayApiService.getPictures(
       pixabayApiService.query
@@ -60,6 +63,7 @@ async function showMoreImg() {
     const gallery = await createGallery(markup);
     const scroll = await loadMoreSmoothScroll();
     const showLoadMoreBtn = await addLoadMoreBtn();
+    const hideLoader = await loaderHide();
     if (pictures.length < 39) {
       Notify.warning(
         "We're sorry, but you've reached the end of search results."
@@ -113,4 +117,26 @@ async function loadMoreSmoothScroll() {
     top: cardHeight * 2,
     behavior: 'smooth',
   });
+}
+
+// LOADER //
+
+const maskEl = document.querySelector('.mask');
+
+window.addEventListener('DOMContentLoaded', onWindowLoad);
+
+function onWindowLoad() {
+  setTimeout(() => {
+    maskEl.classList.add('hide');
+  }, 700);
+}
+
+function loaderShow() {
+  maskEl.classList.remove('hide');
+}
+
+function loaderHide() {
+  setTimeout(() => {
+    maskEl.classList.add('hide');
+  }, 700);
 }

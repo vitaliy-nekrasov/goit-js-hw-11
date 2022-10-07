@@ -16,6 +16,7 @@ formEl.addEventListener('submit', onSubmitForm);
 async function onSubmitForm(evt) {
   try {
     evt.preventDefault();
+    const showLoader = await loaderShow();
     pixabayApiService.query =
       evt.currentTarget.elements.searchQuery.value.trim();
     if (pixabayApiService.query === '') {
@@ -47,6 +48,7 @@ async function onSubmitForm(evt) {
       infiniteScroll.unobserve(lastEl);
     }
     const scroll = await startSmoothScroll();
+    const hideLoader = await loaderHide();
   } catch (error) {
     console.log(error);
   }
@@ -77,6 +79,7 @@ async function startSmoothScroll() {
 
 async function showMoreImg() {
   try {
+    const showLoader = await loaderShow();
     const response = await pixabayApiService.getPictures(
       pixabayApiService.query
     );
@@ -85,6 +88,7 @@ async function showMoreImg() {
     const gallery = await createGallery(markup);
     const lastEl = await document.querySelector('.img:last-child');
     isPageLoad = true;
+    const hideLoader = await loaderHide();
     if (isPageLoad) {
       observeLastEl(lastEl);
       isPageLoad = false;
@@ -111,3 +115,19 @@ const infiniteScrollCallback = (entries, observer) => {
   observer.unobserve(entry.target);
 };
 const infiniteScroll = new IntersectionObserver(infiniteScrollCallback, {});
+
+const maskEl = document.querySelector('.mask');
+
+window.addEventListener('DOMContentLoaded', onWindowLoad);
+
+function onWindowLoad() {
+  maskEl.classList.add('hide');
+}
+
+function loaderShow() {
+  maskEl.classList.remove('hide');
+}
+
+function loaderHide() {
+  maskEl.classList.add('hide');
+}
