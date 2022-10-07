@@ -3,6 +3,7 @@ import galleryMarkup from './js/gallery-markup';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { maskEl, onWindowLoad, loaderShow, loaderHide } from './js/loader';
 
 const pixabayApiService = new PixabayApiService();
 const { formEl, galleryEl, loadMoreBtnEl } = {
@@ -117,26 +118,4 @@ async function loadMoreSmoothScroll() {
     top: cardHeight * 2,
     behavior: 'smooth',
   });
-}
-
-// LOADER //
-
-const maskEl = document.querySelector('.mask');
-
-window.addEventListener('DOMContentLoaded', onWindowLoad);
-
-function onWindowLoad() {
-  setTimeout(() => {
-    maskEl.classList.add('hide');
-  }, 700);
-}
-
-function loaderShow() {
-  maskEl.classList.remove('hide');
-}
-
-function loaderHide() {
-  setTimeout(() => {
-    maskEl.classList.add('hide');
-  }, 700);
 }
